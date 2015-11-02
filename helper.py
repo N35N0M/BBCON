@@ -53,5 +53,40 @@ class Motob():
             else:
                 motor.set_value(v)
 
-## Chooses
+## Chooses a behavior (highest weight or stochastic choice), and returns
+## a motor recommendation and halt-entirely boolean as a tuple.
 class Arbitrator():
+
+    ##Initiates with reference to BBCON (and its behaviors)
+    ##Stochastic decides whether or not this is a stochastic Arbitrator
+    def __init__(self, BBCON, stochastic=False):
+        self.BBCON = BBCON
+
+        if stochastic:
+            self.choose_action_stochastic()
+        else:
+            self.choose_action()
+
+    def choose_action(self):
+        behaviors = self.BBCON.get_activeBehaviors()
+        maxWeight = -float("Inf")
+        winningBehavior = None
+
+        for b in behaviors:
+            weight = b.get_weight()
+
+            if weight > maxWeight:
+                maxWeight = weight
+                winningBehavior = b
+
+        if maxWeight != -float("Inf") and winningBehavior:       #If both values are set...
+            return (winningBehavior.get_motor_recommendations(), winningBehavior.get_halt_request())
+
+
+
+
+
+    def choose_action_stochastic(self):
+        pass
+
+

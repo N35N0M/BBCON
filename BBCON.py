@@ -19,6 +19,9 @@ class BBCON():
         self.timesteplength = timesteplength
         arbitrator = Arbitrator()
 
+    def get_activeBehaviors(self):
+        return self.activeBehaviors
+
     #Appends a behavior object to a list
     def add_behavior(self, behavior):
         self.behaviors.append(behavior)
