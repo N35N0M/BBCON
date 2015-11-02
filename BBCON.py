@@ -1,10 +1,5 @@
-import Arbitrator           #Arbitrator class
-import Behavior             #Behavior class
-import ultrasonic           #SenseObj
-import reflectance_sensors  #SenseObj
-import camera               #SenseObj
-import zumo_button          #Contains ZumoButton-class w/ wait_for_press method
-from filename import classname
+from helper import Arbitrator           #Arbitrator class
+from behavior import Behavior            #Behavior class
 import time
 
 ##Implents a Behavior Based Controller for Robotics Control
@@ -12,12 +7,12 @@ class BBCON():
 
 
     def __init__(self, timesteplength):
-        behaviors = []
-        activeBehaviors = []
-        sensobs = []
-        motobs = []
+        self.behaviors = []
+        self.activeBehaviors = []
+        self.sensobs = []
+        self.motobs = []
         self.timesteplength = timesteplength
-        arbitrator = Arbitrator()
+        self.arbitrator = Arbitrator()
 
     def get_activeBehaviors(self):
         return self.activeBehaviors
