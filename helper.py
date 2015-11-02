@@ -2,6 +2,8 @@ from motors import Motors
 from camera import Camera
 from ultrasonic import Ultrasonic
 from reflectance_sensors import ReflectanceSensors
+from random import randint
+
 
 ## A Sensob can contain multiple sensor references, to be used in behaviors.
 class Sensob():
@@ -60,7 +62,7 @@ class Arbitrator():
     ##Initiates with reference to BBCON (and its behaviors)
     ##Stochastic decides whether or not this is a stochastic Arbitrator
     def __init__(self, BBCON, stochastic=False):
-        self.BBCON = BBCON
+        self.behaviors = BBCON.get_activeBehaviors()
 
         if stochastic:
             self.choose_action_stochastic()
@@ -68,11 +70,10 @@ class Arbitrator():
             self.choose_action()
 
     def choose_action(self):
-        behaviors = self.BBCON.get_activeBehaviors()
         maxWeight = -float("Inf")
         winningBehavior = None
 
-        for b in behaviors:
+        for b in self.behaviors:
             weight = b.get_weight()
 
             if weight > maxWeight:
@@ -81,12 +82,19 @@ class Arbitrator():
 
         if maxWeight != -float("Inf") and winningBehavior:       #If both values are set...
             return (winningBehavior.get_motor_recommendations(), winningBehavior.get_halt_request())
-
-
-
+        else:
+            pass    #Perhaps throw an error or print something? This indicates that there are no
+                    #active behaviors or there's something wrong with the code (or both!)
 
 
     def choose_action_stochastic(self):
-        pass
+        range = 0
+
+        for b in self.behaviors:
+            range += b.get_weight()
+
+        stochasticVariable = randint(range)
+
+
 
 
