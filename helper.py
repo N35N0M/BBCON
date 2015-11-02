@@ -1,7 +1,4 @@
-from motors import Motors
-from camera import Camera
-from ultrasonic import Ultrasonic
-from reflectance_sensors import ReflectanceSensors
+
 from random import randint
 
 
@@ -94,6 +91,7 @@ class Arbitrator():
             range += b.get_weight()
 
         stochasticVariable = randint(range)
+
 
 
 

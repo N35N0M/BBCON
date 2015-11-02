@@ -1,4 +1,8 @@
 from helper import Sensob
+from motors import Motors
+from camera import Camera
+from ultrasonic import Ultrasonic
+from reflectance_sensors import ReflectanceSensors
 
 class Behavior():
     def __init__(self, bbcon, sensobs):
