@@ -1,6 +1,4 @@
-
 from random import randint
-
 
 ## A Sensob can contain multiple sensor references, to be used in behaviors.
 class Sensob():
@@ -30,9 +28,8 @@ class Sensob():
 ## Motor object. Contains several motor references and has the power to operationalize
 ## all the motors it references
 class Motob():
-
     #Constructor
-    def __init__(self, motors, value=0):
+    def __init__(self, motors, value=None):
         self.motors = motors    #Apparantly a list of motors
         self.value = value      #The latest motor recommendation sent
 
@@ -41,6 +38,7 @@ class Motob():
         self.value = motorValue
         self.operationalize()
 
+    #Gives each motor in the motob a new setting
     def operationalize(self):
         ## Every motor can have a value between [-1,1]
         ## Perhaps we should error-check to see if it's in range?
@@ -66,6 +64,9 @@ class Arbitrator():
         else:
             self.choose_action()
 
+    #Chooses an action based on the one with the highest weight.
+    #RETURNs tuple with (motor_recommendation, haltflag), or (None, None) if there is an error or
+    #no best COA is found
     def choose_action(self):
         maxWeight = -float("Inf")
         winningBehavior = None
@@ -80,17 +81,34 @@ class Arbitrator():
         if maxWeight != -float("Inf") and winningBehavior:       #If both values are set...
             return (winningBehavior.get_motor_recommendations(), winningBehavior.get_halt_request())
         else:
-            pass    #Perhaps throw an error or print something? This indicates that there are no
+            return (None,None)    #Perhaps throw an error or print something? This indicates that there are no
                     #active behaviors or there's something wrong with the code (or both!)
 
 
+    #choose_action with stochastic aspects. The higher the behavior weight, the more *likely*
+    #it is to be chosen.
     def choose_action_stochastic(self):
         range = 0
+        rangeTable = []
+        chosenBehavior = None
 
         for b in self.behaviors:
             range += b.get_weight()
+            rangeTable.append(range)
 
-        stochasticVariable = randint(range)
+        stochasticVariable = randint(0,range)
+
+        for i in range(len(rangeTable)):
+            if rangeTable[i] >= stochasticVariable:
+                chosenBehavior = self.behaviors[i]
+                break
+
+        if chosenBehavior is not None:
+            return (chosenBehavior.get_motor_recommendations(), chosenBehavior.get_halt_request())
+        else:
+            return (None,None)    ## No behavior found? Throw error or some system warning?
+
+
 
 
 
