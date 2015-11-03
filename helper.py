@@ -6,31 +6,24 @@ logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 ## A Sensob can contain multiple sensor references, to be used in behaviors.
 class Sensob():
     ## Constructor that initiates a senseob with all neccessary sensors
-    def __init__(self,sensors):
-        self.sensors = sensors
+    def __init__(self,sensor):
+        self.sensor = sensor
         logging.debug("Senseob created")
 
     ## Makes each sensor associated with the senseob measure a new value
     def update(self):
-        for sensor in self.sensors:
-            sensor = sensor.update()
+        sensor = self.sensor.update()
 
         logging.debug("Senseob updated")
 
     ## Gets the most recently measured value from each sensor
-    def get_values(self):
-        values = []
-        for sensor in self.sensors:
-            values.append(sensor.get_value())
-
+    def get_value(self):
         logging.debug("Values retrieved")
-        return values
+        return self.sensor.get_value()
 
     ## Resets each sensor, setting each value to None or -1, etc
     def reset(self):
-        for sensor in self.sensors:
-            sensor.reset()
-
+        self.sensor.reset()
         logging.debug("Senseob reset")
 
 
@@ -38,8 +31,8 @@ class Sensob():
 ## all the motors it references
 class Motob():
     #Constructor
-    def __init__(self, motors, value=None):
-        self.motors = motors    #Apparantly a list of motors
+    def __init__(self, motor, value=None):
+        self.motor = motor    #Apparantly a list of motors
         self.value = value      #The latest motor recommendation sent
 
         logging.debug("Motob created")
@@ -56,11 +49,10 @@ class Motob():
         ## Perhaps we should error-check to see if it's in range?
         v = self.value
 
-        for motor in self.motors:
-            if v == 0:
-                motor.stop()
-            else:
-                motor.set_value(v)
+        if v == 0:
+            self.motor.stop()
+        else:
+            self.motor.set_value(v)
 
         logging.debug("Motob operationalized")
 
@@ -129,7 +121,7 @@ class Arbitrator():
                 return (chosenBehavior.get_motor_recommendations(), chosenBehavior.get_halt_request())
             else:
                 logging.debug("Uhoh! Stochastic arbitrator wasn't able to chose an action")
-                return (None,None)    ## No behavior found? Throw error or some system warning?
+                return (None, None)    ## No behavior found? Throw error or some system warning?
 
 
 

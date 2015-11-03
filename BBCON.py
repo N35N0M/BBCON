@@ -1,6 +1,8 @@
-from helper import Arbitrator           #Arbitrator class
+from helper import Arbitrator, Motob           #Arbitrator class
 from time import sleep
 import logging, sys
+from motors import Motors
+
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
@@ -15,9 +17,10 @@ class BBCON():
         self.behaviors = []                         #List of all behaviors
         self.activeBehaviors = []                   #List of all behaviors currently monitored
         self.senseobs = []                           #List of all unique sensobs, for updating
-        self.motobs = []                            #List of all unique motobs
+        self.motob = Motob(Motors())                            #List of all unique motobs
         self.timesteplength = timesteplength        #Time step (how often the robot should choose a new action)
         self.arbitrator = Arbitrator(self,False)    #Arbitrator
+        self.halt = False
 
         logging.debug("Behavior-based Controller initialized")
 
@@ -55,8 +58,18 @@ class BBCON():
         logging.debug("==== RUNNING TIMESTEP ====")
         self.update_senseobs()
         self.update_behaviors()
-        self.arbitrator.choose_action()
-        self.update_motobs()
+        arbitratorsChoice = self.arbitrator.choose_action()
+
+        print (arbitratorsChoice)
+        if arbitratorsChoice[1]:   #If halt_request is true
+            self.halt = True
+            logging.debug("HALT REQUESTED!")
+        elif arbitratorsChoice == (None,None):
+            pass
+        else:
+            self.update_motobs(arbitratorsChoice[0])
+
+
         sleep(self.timesteplength)
         self.reset_sensobs()
 
@@ -76,10 +89,8 @@ class BBCON():
 
         logging.debug("Behaviors updated")
 
-    def update_motobs(self):
-        for motor in self.motobs:
-            motor.update()
-
+    def update_motobs(self, value):
+        self.motob.update(value)
         logging.debug("Motobs updated")
 
     def reset_sensobs(self):
