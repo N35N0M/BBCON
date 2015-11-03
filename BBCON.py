@@ -60,9 +60,9 @@ class BBCON():
         self.update_behaviors()
         arbitratorsChoice = self.arbitrator.choose_action()
 
-        print (arbitratorsChoice)
         if arbitratorsChoice[1]:   #If halt_request is true
             self.halt = True
+            self.update_motobs(0)
             logging.debug("HALT REQUESTED!")
         elif arbitratorsChoice == (None,None):
             pass
@@ -98,3 +98,5 @@ class BBCON():
             sense.reset()
 
         logging.debug("Senseobs reset")
+
+

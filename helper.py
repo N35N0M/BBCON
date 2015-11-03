@@ -1,7 +1,7 @@
 from random import randint
 import logging, sys
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 
 ## A Sensob can contain multiple sensor references, to be used in behaviors.
 class Sensob():
@@ -94,6 +94,9 @@ class Arbitrator():
 
             if maxWeight != -float("Inf") and winningBehavior:       #If both values are set...
                 logging.debug("Arbitrator has chosen an action!")
+
+                message = "Arbitrator has chosen an action! " + winningBehavior.printName()
+                logging.info(message)
                 return (winningBehavior.get_motor_recommendations(), winningBehavior.get_halt_request())
             else:
                 logging.debug("Uhoh! Arbitrator wasn't able to chose an action!")

@@ -5,7 +5,7 @@ from motors import Motors
 from camera import Camera
 from ultrasonic import Ultrasonic
 from reflectance_sensors import ReflectanceSensors
-from behavior import Behavior, PictureWhenClose
+from behavior import Behavior, PictureWhenClose, RandomWalk
 import logging, sys
 
 
@@ -15,12 +15,13 @@ if __name__=="__main__":
     logging.debug("Main method initiated, waiting for button press")
     ZumoButton().wait_for_press()
 
-    timeStep = 1
+    timeStep = 0.5
 
     # CREATE CONTROLLER
     Controller = BBCON(timeStep)
     while(not Controller.halt):
         Controller.add_behavior(PictureWhenClose(Controller, 1))
+        Controller.add_behavior(RandomWalk(Controller,0.5))
         Controller.run_one_timestep()
 
     logging.debug("Main method terminated without error")

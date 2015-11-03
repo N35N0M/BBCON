@@ -4,7 +4,9 @@ from ultrasonic import Ultrasonic
 from reflectance_sensors import ReflectanceSensors
 import logging, sys
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+from random import randrange
+
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 
 
 class Behavior():
@@ -54,11 +56,14 @@ class Behavior():
 class PictureWhenClose(Behavior):
     def __init__(self, BBCON, priority):
         super().__init__(BBCON)
-        self.sensobs = [Sensob(Camera(img_height=1920,img_width=1080)), Sensob(Ultrasonic()), Sensob(ReflectanceSensors())]
+        self.sensobs = [Sensob(Camera(img_height=1920,img_width=1080)), Sensob(Ultrasonic())]
         self.priority = priority                      #Preset value that is set by the user
         self.picTaken = False
         for sensob in self.sensobs:
             sensob.update()
+
+    def printName(self):
+        return "Behavior PictureWhenClose"
 
     #Update is executed in three steps (one if deactivated):
     # 1) Check to see if it should be active, 2) sense and act, 3) calculate weight
@@ -97,3 +102,43 @@ class PictureWhenClose(Behavior):
         #
         # else:
         #     pass
+
+class RandomWalk(Behavior):
+    def __init__(self, BBCON, priority):
+        super().__init__(BBCON)
+        self.sensobs = []
+        self.priority = priority                      #Preset value that is set by the user
+        self.randomCount = 0
+        for sensob in self.sensobs:
+            sensob.update()
+
+    def printName(self):
+        return "Behavior random walk"
+
+    #Update is executed in three steps (one if deactivated):
+    # 1) Check to see if it should be active, 2) sense and act, 3) calculate weight
+    def update(self):
+        super().considerState()
+
+        if self.active_flag:
+            self.sense_and_act()
+            self.weight = self.priority * self.match_degree
+
+
+    def test(self):
+        return True
+
+    def sense_and_act(self):
+        if self.randomCount%2 == 0:
+            self.motor_recommendations = (1,1)
+        else:
+            randomNumber1 = randrange(-10,10,1)/10
+            randomNumber2 = randrange(-10,10,1)/10
+
+            print(randomNumber1,randomNumber2)
+
+            self.motor_recommendations = [randomNumber1,randomNumber2]
+
+        self.randomCount += 1
+
+        self.match_degree = 1
