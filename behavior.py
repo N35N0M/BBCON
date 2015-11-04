@@ -3,10 +3,10 @@ from helper import Sensob
 from ultrasonic import Ultrasonic
 from reflectance_sensors import ReflectanceSensors
 import logging, sys
-
+import time
 from random import randrange
 
-logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 
 class Behavior():
@@ -68,6 +68,7 @@ class PictureWhenClose(Behavior):
     #Update is executed in three steps (one if deactivated):
     # 1) Check to see if it should be active, 2) sense and act, 3) calculate weight
     def update(self):
+        print("ULTRASONIC READING: ", self.sensobs[1].get_value())
         super().considerState()
 
         if self.active_flag:
@@ -76,9 +77,14 @@ class PictureWhenClose(Behavior):
 
 
     def test(self):
-        if (self.sensobs[1].get_value() > 70):
+        self.sensobs[1].update()
+        v = self.sensobs[1].get_value()
+        print("Value ultrasonic",v)
+        if (v > 70):
+            logging.debug("Should deactivate or stay deactivated")
             return False
         else:
+            logging.debug("Should activate, therefore terminate...")
             return True
 
     def sense_and_act(self):
@@ -130,15 +136,50 @@ class RandomWalk(Behavior):
 
     def sense_and_act(self):
         if self.randomCount%2 == 0:
-            self.motor_recommendations = (1,1)
+            self.motor_recommendations = [0.1,0.1]
         else:
             randomNumber1 = randrange(-10,10,1)/10
             randomNumber2 = randrange(-10,10,1)/10
 
-            print(randomNumber1,randomNumber2)
 
             self.motor_recommendations = [randomNumber1,randomNumber2]
+            self.motor_recommendations = [x*0.4 for x in self.motor_recommendations]
 
         self.randomCount += 1
 
         self.match_degree = 1
+
+class AvoidEdge(Behavior):
+    def __init__(self, BBCON, priority):
+        super().__init__(BBCON)
+        print("We are going in to calibration mode in 2 sec")
+        time.sleep(2)
+        self.sensob = ReflectanceSensors(auto_calibrate=True)
+        self.priority = priority                      #Preset value that is set by the user
+        self.sensob.update()
+        self.old = self.sensob.get_value()
+
+    def printName(self):
+        return "Behavior AvoidEdge  "
+
+    def update(self):
+            super().considerState()
+            if self.active_flag:
+                self.sense_and_act()
+                self.weight = self.priority * self.match_degree
+
+    def sense_and_act(self):
+        self.sensob.update()
+        self.new = self.sensob.get_value()
+        print(sum(self.old)/len(self.old) - sum(self.new)/len(self.new) > 0.1)
+        if (sum(self.old)/len(self.old) - sum(self.new)/len(self.new) > 0.1 ):
+            self.motor_recommendations = [-1,-1]
+            self.match_degree = 1
+        else:
+            self.match_degree = 0
+            self.motor_recommendations = [1,1]
+
+        self.old = self.new
+
+    def test(self):
+        return True

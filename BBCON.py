@@ -67,8 +67,8 @@ class BBCON():
         elif arbitratorsChoice == (None,None):
             pass
         else:
-            self.update_motobs(arbitratorsChoice[0])
-
+            #self.update_motobs(arbitratorsChoice[0]*0.1)
+            self.update_motobs([x*1 for x in arbitratorsChoice[0]])
 
         sleep(self.timesteplength)
         self.reset_sensobs()
